@@ -100,6 +100,7 @@ router.delete("/:id", async (req, res) => {
   } else {
     res.sendStatus(404);
   }
+  console.log("test");
 });
 
 module.exports = router;
