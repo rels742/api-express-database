@@ -20,4 +20,27 @@ router.get("/", async (req, res) => {
   });
 });
 
+router.post("/", async (req, res) => {
+  //API request: Create a book
+  //SQL query: INSERT INTO...
+
+  const sqlQuery = `INSERT INTO pets (name, age, type, breed, microchip)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;`;
+
+  const qResult = await db.query(sqlQuery, [
+    req.body.name,
+    req.body.age,
+    req.body.type,
+    req.body.breed,
+    req.body.microchip,
+  ]);
+
+  //   console.log("HERE ARE THE RESULTS", qResult);
+
+  res.json({
+    pets: qResult.rows,
+  });
+});
+
 module.exports = router;
