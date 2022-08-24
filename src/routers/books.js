@@ -82,4 +82,42 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+router.put("/:id", async (req, res) => {
+  //API request: Update a book (by Id)
+  // SQL query:
+  //UPDATE books SET type ='Non-Fiction'
+  // WHERE id = 2
+  // RETURNING *;
+
+  const sqlQuery = `UPDATE books SET title = $1, type = $2, author = $3, topic = $4, publicationDate = $5, pages = $6
+   WHERE id = $7
+   RETURNING *;`;
+
+  const bookId = Number(req.params.id);
+  const sqlParams = [
+    req.body.title,
+    req.body.type,
+    req.body.author,
+    req.body.topic,
+    req.body.publicationDate,
+    req.body.pages,
+    bookId,
+  ];
+  //put the params in variable rather than having it all laid out in the qResukt varaiable, so then after the comma was able to replace the array with the variable name as its all stored in there
+
+  const qResult = await db.query(sqlQuery, sqlParams);
+
+  // console.log("QUERY", sqlQuery);
+  // console.log("PARAMS", sqlParams);
+  // console.log("RESULTS", qResult.rows);
+
+  if (qResult.rowCount === 1) {
+    res.json(qResult.rows[0]);
+  } else {
+    res.sendStatus(404);
+  }
+
+  // if statement that checks the row counts to see if something came back which would be one value, if nothing came back that means that id does not exist and so send back a 404 status code
+});
+
 module.exports = router;
