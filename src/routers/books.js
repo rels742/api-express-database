@@ -1,3 +1,4 @@
+const { request } = require("express");
 const express = require("express");
 const router = express.Router();
 const db = require("../../db");
@@ -56,22 +57,29 @@ router.post("/", async (req, res) => {
   });
 });
 
+router.get("/:id", async (req, res) => {
+  //API request: Get a book by ID
+  //SQL query: SELECT... WHERE
+
+  let sqlQuery = "SELECT * FROM books ";
+
+  //book id var
+  const bookId = Number(req.params.id);
+  const params = [];
+  // console.log("HI", req.params.id);
+
+  if (bookId) {
+    sqlQuery += "WHERE id = $1";
+    params.push(bookId);
+  }
+
+  const qResult = await db.query(sqlQuery, params);
+
+  // console.log("RESULTS", qResult);
+
+  res.json({
+    books: qResult.rows,
+  });
+});
+
 module.exports = router;
-
-// router.get("/", async (req, res) => {
-//   //   console.log(req.query);
-//   let sqlQuery = "SELECT * FROM books";
-//   const params = [];
-
-//   if (req.query.topic) {
-//     sqlQuery += "WHERE topic = $1";
-//     params.push(req.query.topic);
-//   }
-
-//   const qResult = await db.query(sqlQuery, params);
-
-//   console.log(qResult);
-//   res.json({
-//     books: qResult.rows,
-//   });
-// });
