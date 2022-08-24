@@ -14,16 +14,12 @@ router.get("/", async (req, res) => {
 
   const qResult = await db.query(sqlQuery, params);
 
-  //   console.log(qResult);
   res.json({
     pets: qResult.rows,
   });
 });
 
 router.post("/", async (req, res) => {
-  //API request: Create a book
-  //SQL query: INSERT INTO...
-
   const sqlQuery = `INSERT INTO pets (name, age, type, breed, microchip)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING *;`;
@@ -36,11 +32,74 @@ router.post("/", async (req, res) => {
     req.body.microchip,
   ]);
 
-  //   console.log("HERE ARE THE RESULTS", qResult);
-
   res.json({
     pets: qResult.rows,
   });
+});
+
+router.get("/:id", async (req, res) => {
+  let sqlQuery = "SELECT * FROM pets ";
+
+  const petId = Number(req.params.id);
+  const params = [];
+
+  if (petId) {
+    sqlQuery += "WHERE id = $1";
+    params.push(petId);
+  }
+
+  const qResult = await db.query(sqlQuery, params);
+
+  if (qResult.rowCount === 1) {
+    res.json(qResult.rows[0]);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  const sqlQuery = `UPDATE pets SET name = $1, age = $2, type = $3, breed = $4, microchip = $5
+     WHERE id = $6
+     RETURNING *;`;
+
+  const petId = Number(req.params.id);
+  const sqlParams = [
+    req.body.name,
+    req.body.age,
+    req.body.type,
+    req.body.breed,
+    req.body.microchip,
+    petId,
+  ];
+
+  const qResult = await db.query(sqlQuery, sqlParams);
+
+  if (qResult.rowCount === 1) {
+    res.json(qResult.rows[0]);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  let sqlQuery = `DELETE FROM pets 
+    WHERE id = $1
+    RETURNING *;`;
+
+  const petId = Number(req.params.id);
+  const params = [];
+
+  if (petId) {
+    params.push(petId);
+  }
+
+  const qResult = await db.query(sqlQuery, params);
+
+  if (qResult.rowCount === 1) {
+    res.json(qResult.rows[0]);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 module.exports = router;
