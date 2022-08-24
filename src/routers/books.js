@@ -120,4 +120,32 @@ router.put("/:id", async (req, res) => {
   // if statement that checks the row counts to see if something came back which would be one value, if nothing came back that means that id does not exist and so send back a 404 status code
 });
 
+router.delete("/:id", async (req, res) => {
+  //API request: Delete a book (by using it's id)
+  // SQL query:
+
+  let sqlQuery = `DELETE FROM books 
+  WHERE id = $1
+  RETURNING *;`;
+
+  //book id var
+  const bookId = Number(req.params.id);
+  const params = [];
+  // console.log("HI", req.params.id);
+
+  if (bookId) {
+    params.push(bookId);
+  }
+
+  const qResult = await db.query(sqlQuery, params);
+
+  // console.log("RESULTS", qResult);
+
+  if (qResult.rowCount === 1) {
+    res.json(qResult.rows[0]);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
 module.exports = router;
